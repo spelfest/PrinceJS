@@ -122,6 +122,32 @@
 
 })();
 </script>
+<script>
+/* Spelfest virtual keyboard bridge */
+(function () {
+  function codeToKey(code) {
+    if (code === 'Space') return ' ';
+    if (code === 'Enter') return 'Enter';
+    if (code === 'ShiftLeft' || code === 'ShiftRight') return 'Shift';
+    if (code.startsWith('Arrow')) return code;
+    if (code.startsWith('Key') && code.length === 4) return code.slice(3).toLowerCase();
+    return code;
+  }
+  function sendKeyEvent(code, isDown) {
+    var ev = new KeyboardEvent(isDown ? 'keydown' : 'keyup', {
+      key: codeToKey(code), code: code, bubbles: true, cancelable: true
+    });
+    document.dispatchEvent(ev);
+    window.dispatchEvent(ev);
+  }
+  window.addEventListener('message', function (e) {
+    var d = e.data || {};
+    if (d.type !== 'spelfest-input' || !d.code) return;
+    try { window.focus(); } catch (err) {}
+    sendKeyEvent(d.code, !!d.pressed);
+  }, false);
+})();
+</script>
 
   </body>
 </html>
